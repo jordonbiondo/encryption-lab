@@ -7,16 +7,10 @@ import java.security.*;
 public class Encrypty {
 
     /**
-     * Println wrapper
+     * Println wrappers
      */
-    public static void pln(Object o) {
-	System.out.println(o.toString());
-    }
-
-    public static void plnpanic(Object o) {
-	pln(o);
-	System.exit(-1);
-    }
+    public static void pln(Object o) { System.out.println(o.toString());}
+    public static void plnpanic(Object o) {pln(o.toString()); System.exit(-1);}
 
 
     public static void main(String[] args) {
@@ -52,6 +46,7 @@ public class Encrypty {
 
 	try {
 	    KeyGenerator kgen = KeyGenerator.getInstance("AES");
+	    kgen.init(128);
 	    SecretKey key = kgen.generateKey();
 	    
 	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -60,12 +55,13 @@ public class Encrypty {
 	    DataInputStream dos = new DataInputStream(fileReader);
 	    while(dos.available() > 0) {
 		cipherWriter.write(dos.readByte());
-		cipherWriter.flush();
 	    }
 	    cipherWriter.close();
 	    ivWriter.write(c.getIV());
+	    
 	    ivWriter.close();
 	    keyWriter.write(key.getEncoded());
+	    	    
 	    fileReader.close();
 	    fileWriter.close();
 	} catch (Exception e) {

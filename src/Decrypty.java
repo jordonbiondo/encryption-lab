@@ -55,10 +55,12 @@ public class Decrypty {
 	    
 	    byte[] keyBytes = new byte[(int)keyFile.length()];
 	    keyReader.read(keyBytes);
-	    SecretKey key = new SecretKeySpec(keyBytes, "AES");
 
+	    SecretKey key = new SecretKeySpec(keyBytes, "AES");
+	    
 	    byte[] ivBytes = new byte[(int)ivFile.length()];
 	    ivReader.read(ivBytes);
+
 	    IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
 	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
