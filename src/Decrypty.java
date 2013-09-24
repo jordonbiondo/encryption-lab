@@ -48,6 +48,7 @@ public class Decrypty {
 		}
 	    }
 	} catch (Exception e) {
+	    pln("Error during initialization");
 	    plnpanic(e);
 	}
 
@@ -62,16 +63,15 @@ public class Decrypty {
 	    ivReader.read(ivBytes);
 
 	    IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
-
 	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 	    c.init(Cipher.DECRYPT_MODE, key, ivSpec);
-
-	    byte[] inBytes = new byte[(int)inputFile.length()];
-	    CipherInputStream cipherReader = new CipherInputStream(fileReader, c);
-
+	    
 	    byte[] plainBytes = new byte[(int)inputFile.length()];
-	    cipherReader.read(plainBytes);
-	    fileWriter.write(plainBytes);
+	    fileReader.read(plainBytes);
+	    fileWriter.write(c.update(plainBytes));
+	    fileWriter.write(c.doFinal());
+
+	    fileReader.close();
 	    fileWriter.close();
 	    
 	} catch (Exception e) {
