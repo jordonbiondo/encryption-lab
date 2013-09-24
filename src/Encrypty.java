@@ -57,9 +57,11 @@ public class Encrypty {
 	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 	    c.init(Cipher.ENCRYPT_MODE, key);
 	    CipherOutputStream cipherWriter = new CipherOutputStream(fileWriter, c);
-	    byte[] plainBytes = new byte[(int)inputFile.length()];
-	    fileReader.read(plainBytes);
-	    cipherWriter.write(plainBytes);
+	    DataInputStream dos = new DataInputStream(fileReader);
+	    while(dos.available() > 0) {
+		cipherWriter.write(dos.readByte());
+		cipherWriter.flush();
+	    }
 	    cipherWriter.close();
 	    ivWriter.write(c.getIV());
 	    ivWriter.close();

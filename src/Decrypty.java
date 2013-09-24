@@ -1,5 +1,6 @@
 package src;
 import javax.crypto.*;
+import javax.crypto.spec.*;
 import java.io.*;
 import java.util.*;
 import java.security.*;
@@ -20,7 +21,7 @@ public class Decrypty {
     public static void main(String[] args) {
 	
 	if (args.length != 4) {
-	    pln("USAGE: encrypty <input file> <output file> <init vector file> <key file>");
+	    pln("USAGE: encrypty <input file> <output file> <IV file> <key file>");
 	    System.exit(-1);
 	}
 	File outputFile = null;
@@ -41,22 +42,34 @@ public class Decrypty {
 	    fileReader = new FileInputStream(inputFile);
 	    keyReader = new FileInputStream(keyFile);
 	    ivReader = new FileInputStream(ivFile);
+	    for (File f : new File[]{inputFile, ivFile, keyFile}) {
+		if (!f.exists()) {
+		    plnpanic(f.toString() + " does not exists");
+		}
+	    }
 	} catch (Exception e) {
 	    plnpanic(e);
 	}
 
 	try {
-	    KeyGenerator kgen = KeyGenerator.getInstance("AES");
-	    SecretKey key = kgen.generateKey();
 	    
+	    byte[] keyBytes = new byte[(int)keyFile.length()];
+	    keyReader.read(keyBytes);
+	    SecretKey key = new SecretKeySpec(keyBytes, "AES");
+
+	    byte[] ivBytes = new byte[(int)ivFile.length()];
+	    ivReader.read(ivBytes);
+	    IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+
 	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-	    c.init(Cipher.ENCRYPT_MODE, key);
-	    CipherOutputStream cipherWriter = new CipherOutputStream(fileWriter, c);
+	    c.init(Cipher.DECRYPT_MODE, key, ivSpec);
+
+	    byte[] inBytes = new byte[(int)inputFile.length()];
+	    CipherInputStream cipherReader = new CipherInputStream(fileReader, c);
+
 	    byte[] plainBytes = new byte[(int)inputFile.length()];
-	    fileReader.read(plainBytes);
-	    cipherWriter.write(plainBytes);
-	    cipherWriter.close();
-	    fileReader.close();
+	    cipherReader.read(plainBytes);
+	    fileWriter.write(plainBytes);
 	    fileWriter.close();
 	    
 	} catch (Exception e) {
